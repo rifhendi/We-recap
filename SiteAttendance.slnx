@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SiteAttendance.Tests/SiteAttendance.Tests.csproj" />
+  <Project Path="SiteAttendance/SiteAttendance.csproj" />
+</Solution>

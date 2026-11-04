@@ -1,0 +1,104 @@
+@page
+@model SiteAttendance.Pages.Employees.IndexModel
+@{
+    ViewData["Title"] = "Kelola Engineer";
+}
+
+<!-- Header -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="color: #0F2042;">Kelola Engineer On Site</h4>
+        <div class="text-muted small">
+            Daftar personil Engineer On Site – Manage Service SIG Site Rembang
+        </div>
+    </div>
+    <div>
+        <a asp-page="./Create" class="btn btn-navy shadow-sm">
+            <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+            <span>Tambah Engineer Baru</span>
+        </a>
+    </div>
+</div>
+
+<!-- Employee List Table -->
+<div class="card card-corporate">
+    <div class="card-header">
+        <h6 class="card-title d-flex align-items-center gap-2">
+            <i data-lucide="users" style="width: 18px; height: 18px; color: #0F2042;"></i>
+            <span>Daftar Personil Terdaftar (@Model.Employees.Count Engineer)</span>
+        </h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-corporate align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">No</th>
+                    <th>Kode Engineer</th>
+                    <th>Nama Lengkap</th>
+                    <th>Jabatan</th>
+                    <th>Lokasi Site</th>
+                    <th>Status</th>
+                    <th>Terdaftar Sejak</th>
+                    <th class="text-center" style="width: 140px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Employees.Any())
+                {
+                    int no = 1;
+                    foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td class="text-muted small">@(no++)</td>
+                            <td>
+                                <span class="badge bg-light text-dark border font-monospace fw-bold">@emp.EmployeeCode</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                        @emp.FullName.Substring(0, 1)
+                                    </div>
+                                    <div class="fw-bold text-dark">@emp.FullName</div>
+                                </div>
+                            </td>
+                            <td>@emp.Position</td>
+                            <td>
+                                <span class="badge bg-light text-secondary border">@emp.Site</span>
+                            </td>
+                            <td>
+                                @if (emp.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border">Non-Aktif</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@emp.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-page="./Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-secondary p-1" title="Edit Engineer">
+                                        <i data-lucide="pencil" style="width: 14px; height: 14px;"></i>
+                                    </a>
+                                    <form method="post" asp-page-handler="Toggle" asp-route-id="@emp.Id" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin mengubah status aktif engineer ini?');">
+                                        <button type="submit" class="btn btn-sm @(emp.IsActive ? "btn-outline-warning" : "btn-outline-success") p-1" title="@(emp.IsActive ? "Nonaktifkan" : "Aktifkan")">
+                                            <i data-lucide="@(emp.IsActive ? "user-x" : "user-check")" style="width: 14px; height: 14px;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">Belum ada data engineer.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

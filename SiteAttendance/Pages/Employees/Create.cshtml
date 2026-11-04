@@ -1,0 +1,78 @@
+@page
+@model SiteAttendance.Pages.Employees.CreateModel
+@{
+    ViewData["Title"] = "Tambah Engineer";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+        <div class="mb-3">
+            <a asp-page="./Index" class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                &larr; Kembali ke Kelola Engineer
+            </a>
+        </div>
+
+        <div class="card card-corporate shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 rounded bg-light text-navy">
+                        <i data-lucide="user-plus" style="width: 20px; height: 20px; color: #0F2042;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #0F2042;">Registrasi Engineer Baru</h5>
+                        <div class="text-muted small">Manage Service SIG Site Rembang</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-3 mb-4 small border-0" style="background-color: #FEF2F2; color: #991B1B;"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.EmployeeCode" class="form-label small fw-semibold"></label>
+                        <input asp-for="Input.EmployeeCode" class="form-control font-monospace" placeholder="EOS-001" autofocus />
+                        <span asp-validation-for="Input.EmployeeCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.FullName" class="form-label small fw-semibold"></label>
+                        <input asp-for="Input.FullName" class="form-control" placeholder="Nama Lengkap Personil" />
+                        <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Input.Position" class="form-label small fw-semibold"></label>
+                            <input asp-for="Input.Position" class="form-control" />
+                            <span asp-validation-for="Input.Position" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Input.Site" class="form-label small fw-semibold"></label>
+                            <input asp-for="Input.Site" class="form-control" />
+                            <span asp-validation-for="Input.Site" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="Input.IsActive" class="form-check-input" />
+                        <label asp-for="Input.IsActive" class="form-check-label small text-muted"></label>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+                        <a asp-page="./Index" class="btn btn-secondary-corporate">Batal</a>
+                        <button type="submit" class="btn btn-navy">
+                            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                            <span>Simpan Engineer</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

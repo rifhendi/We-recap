@@ -1,0 +1,74 @@
+@page
+@model SiteAttendance.Pages.Account.LoginModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Login Administrator";
+}
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-3" style="background-color: #0A162E;">
+    <div class="card shadow-lg border-0" style="max-width: 440px; width: 100%; border-radius: 12px; background-color: #FFFFFF;">
+        <div class="card-body p-4 p-md-5">
+            <!-- Brand Header -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 52px; height: 52px; background-color: #0F2042; color: #FFFFFF;">
+                    <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
+                </div>
+                <h4 class="fw-bold mb-1" style="color: #0F2042; letter-spacing: -0.02em;">SITE ATTENDANCE</h4>
+                <div class="text-muted small fw-medium">Engineer On Site – Manage Service SIG</div>
+                <div class="badge mt-2 px-2 py-1" style="background-color: #F1F5F9; color: #334155; font-size: 0.72rem; border: 1px solid #E2E8F0;">
+                    <span class="site-dot d-inline-block me-1"></span>Site Rembang
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3 border-0" style="background-color: #FEF2F2; color: #991B1B;"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Username" class="form-label small fw-semibold" style="color: #334155;"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+                        </span>
+                        <input asp-for="Input.Username" class="form-control border-start-0" placeholder="Username (contoh: vino.setiawan)" autofocus />
+                    </div>
+                    <span asp-validation-for="Input.Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label asp-for="Input.Password" class="form-label small fw-semibold" style="color: #334155;"></label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+                        </span>
+                        <input asp-for="Input.Password" type="password" class="form-control border-start-0" placeholder="Password administrator" />
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                    <label asp-for="Input.RememberMe" class="form-check-label small text-muted"></label>
+                </div>
+
+                <button type="submit" class="btn w-100 py-2 fw-semibold text-white shadow-sm" style="background-color: #0F2042; border-radius: 6px;">
+                    Masuk ke Sistem
+                </button>
+            </form>
+
+            <!-- Corporate Notice -->
+            <div class="mt-4 pt-3 border-top text-center">
+                <div class="text-muted" style="font-size: 0.72rem;">
+                    Aplikasi Khusus Administrator & Leader Site Rembang.<br/>
+                    Administrator: <strong>Vino Rifhendi Setiawan</strong>
+                </div>
+                <div class="mt-2 p-2 rounded" style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; font-size: 0.7rem; color: #475569;">
+                    Default Admin: <code>vino.setiawan</code> | Sandi: <code>AdminSite2026!</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

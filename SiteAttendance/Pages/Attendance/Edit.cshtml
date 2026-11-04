@@ -1,0 +1,135 @@
+@page "{id:int}"
+@model SiteAttendance.Pages.Attendance.EditModel
+@{
+    ViewData["Title"] = "Edit Absensi";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <!-- Breadcrumb & Back -->
+        <div class="mb-3">
+            <a asp-page="./Index" class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                &larr; Kembali ke Data Absensi
+            </a>
+        </div>
+
+        <div class="card card-corporate shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 rounded bg-light text-navy">
+                        <i data-lucide="edit" style="width: 20px; height: 20px; color: #0F2042;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #0F2042;">Perbarui Data Absensi</h5>
+                        <div class="text-muted small">ID Absensi: #@Model.Attendance.Id &bull; Manage Service SIG Site Rembang</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" id="attendanceForm">
+                    <input type="hidden" asp-for="Attendance.Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-3 mb-4 small border-0" style="background-color: #FEF2F2; color: #991B1B;"></div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Employee Select -->
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Attendance.EmployeeId" class="form-label small fw-semibold"></label>
+                            <select asp-for="Attendance.EmployeeId" class="form-select" asp-items="Model.EmployeeOptions" required>
+                                <option value="">-- Pilih Engineer On Site --</option>
+                            </select>
+                            <span asp-validation-for="Attendance.EmployeeId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Attendance.AttendanceDate" class="form-label small fw-semibold"></label>
+                            <input asp-for="Attendance.AttendanceDate" type="date" class="form-control" required />
+                            <span asp-validation-for="Attendance.AttendanceDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Status Kehadiran -->
+                    <div class="mb-4">
+                        <label asp-for="Attendance.Status" class="form-label small fw-semibold"></label>
+                        <select asp-for="Attendance.Status" class="form-select" id="statusSelect">
+                            <option value="Hadir">Hadir (Wajib Jam Kerja Masuk & Pulang)</option>
+                            <option value="Izin">Izin (Tanpa Jam Kerja)</option>
+                            <option value="Sakit">Sakit (Tanpa Jam Kerja)</option>
+                            <option value="Cuti">Cuti Tahunan (Tanpa Jam Kerja)</option>
+                            <option value="Libur">Libur Reguler / Akhir Pekan (Tanpa Jam Kerja)</option>
+                        </select>
+                        <span asp-validation-for="Attendance.Status" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Work Hours Container -->
+                    <div class="card bg-light border p-3 mb-4" id="hoursSection">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold mb-0 text-dark small">
+                                <i data-lucide="clock" class="me-1" style="width: 15px; height: 15px;"></i>
+                                Jam Kerja (Waktu Indonesia Barat - WIB)
+                            </h6>
+                            <span class="badge bg-secondary-subtle text-secondary small">Format: HH:mm</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Attendance.CheckIn" class="form-label small text-muted"></label>
+                                <input asp-for="Attendance.CheckIn" type="time" class="form-control font-monospace" id="checkInInput" />
+                                <span asp-validation-for="Attendance.CheckIn" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Attendance.CheckOut" class="form-label small text-muted"></label>
+                                <input asp-for="Attendance.CheckOut" type="time" class="form-control font-monospace" id="checkOutInput" />
+                                <span asp-validation-for="Attendance.CheckOut" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keterangan -->
+                    <div class="mb-4">
+                        <label asp-for="Attendance.Description" class="form-label small fw-semibold"></label>
+                        <textarea asp-for="Attendance.Description" rows="3" class="form-control" placeholder="Keterangan opsional..."></textarea>
+                        <span asp-validation-for="Attendance.Description" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+                        <a asp-page="./Index" class="btn btn-secondary-corporate">Batal</a>
+                        <button type="submit" class="btn btn-navy">
+                            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                            <span>Simpan Perubahan</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const statusSelect = document.getElementById('statusSelect');
+        const hoursSection = document.getElementById('hoursSection');
+        const checkInInput = document.getElementById('checkInInput');
+        const checkOutInput = document.getElementById('checkOutInput');
+
+        function updateHoursVisibility() {
+            if (statusSelect.value === 'Hadir') {
+                hoursSection.style.opacity = '1';
+                checkInInput.disabled = false;
+                checkOutInput.disabled = false;
+            } else {
+                hoursSection.style.opacity = '0.5';
+                checkInInput.disabled = true;
+                checkOutInput.disabled = true;
+                checkInInput.value = '';
+                checkOutInput.value = '';
+            }
+        }
+
+        statusSelect.addEventListener('change', updateHoursVisibility);
+        updateHoursVisibility();
+    </script>
+}
+

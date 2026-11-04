@@ -1,0 +1,165 @@
+@page
+@model SiteAttendance.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Pengaturan & Backup";
+}
+
+<!-- Header -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="color: #0F2042;">Pengaturan Sistem & Database</h4>
+        <div class="text-muted small">
+            Konfigurasi aplikasi, backup & restore database PostgreSQL, serta audit trail
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Kolom Kiri: Backup & Restore + Info Sistem -->
+    <div class="col-12 col-lg-5">
+        <!-- Database Backup & Restore Card -->
+        <div class="card card-corporate mb-4">
+            <div class="card-header">
+                <h6 class="card-title d-flex align-items-center gap-2">
+                    <i data-lucide="database" style="width: 18px; height: 18px; color: #0F2042;"></i>
+                    <span>Backup & Restore Database</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">
+                    Seluruh data absensi, engineer, dan audit log disimpan di database <strong>PostgreSQL</strong> sebagai <em>single source of truth</em>. Anda dapat mengunduh salinan cadangan atau memulihkan data kapan saja.
+                </p>
+
+                <!-- Download Backup -->
+                <div class="p-3 border rounded mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small text-dark">Unduh Cadangan Penuh (Backup)</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Ekspor seluruh tabel ke format arsip terstruktur (.json)</div>
+                        </div>
+                        <a asp-page-handler="DownloadBackup" class="btn btn-navy btn-sm">
+                            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            <span>Unduh Backup</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Restore Backup Form -->
+                <div class="p-3 border rounded bg-light">
+                    <div class="fw-bold small text-dark mb-1">Pulihkan Data (Restore)</div>
+                    <div class="text-muted mb-2" style="font-size: 0.72rem;">Pilih file backup (.json) untuk memulihkan atau menyinkronkan data absensi.</div>
+
+                    <form method="post" asp-page-handler="Restore" enctype="multipart/form-data">
+                        <div class="input-group mb-2">
+                            <input type="file" name="backupFile" class="form-control form-control-sm" accept=".json" required />
+                            <button type="submit" class="btn btn-warning btn-sm fw-semibold" onclick="return confirm('Apakah Anda yakin ingin memulihkan data dari file cadangan ini?');">
+                                <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                                <span>Restore</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Identitas Resmi Aplikasi Card -->
+        <div class="card card-corporate">
+            <div class="card-header">
+                <h6 class="card-title d-flex align-items-center gap-2">
+                    <i data-lucide="info" style="width: 18px; height: 18px; color: #0F2042;"></i>
+                    <span>Informasi & Pengesahan Dokumen</span>
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Nama Aplikasi:</span>
+                        <span class="fw-bold text-dark">Site Attendance Management</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Subjudul:</span>
+                        <span class="text-dark">Engineer On Site – Manage Service SIG</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Lokasi Operasional:</span>
+                        <span class="badge bg-light text-dark border">Site Rembang</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Administrator / Leader:</span>
+                        <span class="fw-bold text-dark">Vino Rifhendi Setiawan</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Mengetahui:</span>
+                        <span class="text-dark text-end">
+                            <strong>Dina Frinda Saragih</strong><br/>
+                            <span class="text-muted" style="font-size: 0.72rem;">Project Manager MS WiFi</span>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted">Menyetujui:</span>
+                        <span class="text-dark text-end">
+                            <strong>Dwi Mulyantoro</strong><br/>
+                            <span class="text-muted" style="font-size: 0.72rem;">IT Site Infrastructure Officer<br/>PT Semen Gresik (Persero) Tbk.</span>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3 bg-light">
+                        <span class="text-muted">Database Engine:</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">PostgreSQL</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kolom Kanan: Audit Log Trail -->
+    <div class="col-12 col-lg-7">
+        <div class="card card-corporate h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title d-flex align-items-center gap-2">
+                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #0F2042;"></i>
+                    <span>Audit Log & Jejak Aktivitas</span>
+                </h6>
+                <span class="badge bg-light text-muted border">Tersimpan di PostgreSQL</span>
+            </div>
+            <div class="table-responsive" style="max-height: 600px;">
+                <table class="table table-corporate table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px;">Waktu (WIB)</th>
+                            <th>User</th>
+                            <th class="text-center">Aksi</th>
+                            <th>Entitas</th>
+                            <th>Deskripsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.AuditLogs.Any())
+                        {
+                            foreach (var log in Model.AuditLogs)
+                            {
+                                <tr>
+                                    <td class="font-monospace text-muted small">
+                                        @log.CreatedAt.AddHours(7).ToString("dd/MM/yy HH:mm")
+                                    </td>
+                                    <td class="fw-semibold text-dark small">@(log.UserId ?? "SYSTEM")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border small fw-bold font-monospace">@log.Action</span>
+                                    </td>
+                                    <td class="small text-muted">@log.EntityName</td>
+                                    <td class="small text-dark">@log.Description</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Belum ada riwayat audit log.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

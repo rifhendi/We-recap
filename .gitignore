@@ -1,0 +1,33 @@
+## .NET Core & Visual Studio
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+.vs/
+.idea/
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## Secrets & Configs
+*.env
+*.env.*
+!*.env.example
+appsettings.Production.json
+secrets.json
+
+## Logs & Temp
+*.log
+*.tmp
+TestResults/
+
