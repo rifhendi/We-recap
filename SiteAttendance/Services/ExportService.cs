@@ -42,30 +42,39 @@ public class ExportService : IExportService
             var ws = workbook.Worksheets.Add(sheetName);
 
             // Title & Info Header
-            ws.Cell(1, 1).Value = "ABSENSI ENGINEER ON SITE - MANAGE SERVICE SIG";
+            ws.Cell(1, 1).Value = "ABSENSI ENGINEER ON SITE";
             ws.Cell(1, 1).Style.Font.Bold = true;
-            ws.Cell(1, 1).Style.Font.FontSize = 14;
-            ws.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#0F2042");
+            ws.Cell(1, 1).Style.Font.FontSize = 13;
+            ws.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Range(1, 1, 1, 6).Merge();
 
-            ws.Cell(2, 1).Value = $"Lokasi: {model.Location}  |  Periode: {model.PeriodText}";
-            ws.Cell(2, 1).Style.Font.FontSize = 10;
-            ws.Cell(2, 1).Style.Font.FontColor = XLColor.Gray;
+            ws.Cell(2, 1).Value = "MANAGE SERVICE SIG";
+            ws.Cell(2, 1).Style.Font.Bold = true;
+            ws.Cell(2, 1).Style.Font.FontSize = 12;
+            ws.Cell(2, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Range(2, 1, 2, 6).Merge();
 
-            ws.Cell(3, 1).Value = $"Engineer: {section.Employee.FullName} ({section.Employee.EmployeeCode}) - {section.Employee.Position}";
-            ws.Cell(3, 1).Style.Font.Bold = true;
-            ws.Cell(3, 1).Style.Font.FontSize = 11;
-            ws.Cell(3, 1).Style.Font.FontColor = XLColor.FromHtml("#1E293B");
+            // Metadata
+            ws.Cell(4, 1).Value = "Nama";
+            ws.Cell(4, 2).Value = $": {section.Employee.FullName}";
+            ws.Cell(4, 2).Style.Font.Bold = true;
+
+            ws.Cell(5, 1).Value = "Periode";
+            ws.Cell(5, 2).Value = $": {model.PeriodText}";
+
+            ws.Cell(6, 1).Value = "Lokasi";
+            ws.Cell(6, 2).Value = $": {model.Location}";
 
             // Table Headers
-            int startRow = 5;
-            string[] headers = { "No", "Tanggal", "Hari", "Jam Masuk", "Jam Pulang", "Total Jam Kerja", "Status", "Keterangan" };
+            int startRow = 8;
+            string[] headers = { "No", "Tanggal", "Hari", "Waktu Masuk", "Waktu Keluar", "Keterangan" };
             for (int i = 0; i < headers.Length; i++)
             {
                 var cell = ws.Cell(startRow, i + 1);
                 cell.Value = headers[i];
                 cell.Style.Font.Bold = true;
-                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0F2042");
-                cell.Style.Font.FontColor = XLColor.White;
+                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#F1F5F9");
+                cell.Style.Font.FontColor = XLColor.Black;
                 cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             }
@@ -77,7 +86,7 @@ public class ExportService : IExportService
                 ws.Cell(currentRow, 1).Value = r.No;
                 ws.Cell(currentRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                ws.Cell(currentRow, 2).Value = r.Date.ToString("yyyy-MM-dd");
+                ws.Cell(currentRow, 2).Value = r.FormattedDate;
                 ws.Cell(currentRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                 ws.Cell(currentRow, 3).Value = r.DayName;
@@ -89,85 +98,74 @@ public class ExportService : IExportService
                 ws.Cell(currentRow, 5).Value = r.CheckOutText;
                 ws.Cell(currentRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                ws.Cell(currentRow, 6).Value = r.WorkHours;
-                ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-
-                ws.Cell(currentRow, 7).Value = r.Status.ToString();
-                ws.Cell(currentRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Cell(currentRow, 7).Style.Font.Bold = true;
-
-                ws.Cell(currentRow, 8).Value = r.Description;
-
-                if (currentRow % 2 == 0)
-                {
-                    ws.Range(currentRow, 1, currentRow, 8).Style.Fill.BackgroundColor = XLColor.FromHtml("#F8FAFC");
-                }
+                ws.Cell(currentRow, 6).Value = r.Description;
+                ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
                 currentRow++;
             }
 
             // Border table
-            var tableRange = ws.Range(startRow, 1, currentRow - 1, 8);
+            var tableRange = ws.Range(startRow, 1, currentRow - 1, 6);
             tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-            tableRange.Style.Border.OutsideBorderColor = XLColor.FromHtml("#CBD5E1");
-            tableRange.Style.Border.InsideBorderColor = XLColor.FromHtml("#E2E8F0");
-
-            // Rekapitulasi Baris
-            currentRow += 1;
-            ws.Cell(currentRow, 1).Value = $"Rekapitulasi: Hadir={section.HadirCount}, Izin={section.IzinCount}, Sakit={section.SakitCount}, Cuti={section.CutiCount}, Libur={section.LiburCount} | Total Jam Kerja={section.TotalHours:0.##} Jam";
-            ws.Cell(currentRow, 1).Style.Font.Bold = true;
-            ws.Cell(currentRow, 1).Style.Font.FontColor = XLColor.FromHtml("#0F2042");
-            ws.Range(currentRow, 1, currentRow, 8).Merge();
 
             // Signature Section
-            currentRow += 3;
+            currentRow += 2;
             // Dibuat Oleh
-            ws.Cell(currentRow, 2).Value = model.CreatedBy.Header;
-            ws.Cell(currentRow, 2).Style.Font.Bold = true;
+            ws.Cell(currentRow, 2).Value = section.CreatedBy.Header;
             ws.Cell(currentRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow + 1, 2).Value = section.CreatedBy.Company;
+            ws.Cell(currentRow + 1, 2).Style.Font.Bold = true;
+            ws.Cell(currentRow + 1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
             // Mengetahui
-            ws.Cell(currentRow, 5).Value = model.AcknowledgedBy.Header;
-            ws.Cell(currentRow, 5).Style.Font.Bold = true;
-            ws.Cell(currentRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 4).Value = model.AcknowledgedBy.Header;
+            ws.Cell(currentRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow + 1, 4).Value = model.AcknowledgedBy.Company;
+            ws.Cell(currentRow + 1, 4).Style.Font.Bold = true;
+            ws.Cell(currentRow + 1, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
             // Menyetujui
-            ws.Cell(currentRow, 7).Value = model.ApprovedBy.Header;
-            ws.Cell(currentRow, 7).Style.Font.Bold = true;
-            ws.Cell(currentRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 6).Value = model.ApprovedBy.Header;
+            ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow + 1, 6).Value = model.ApprovedBy.Company;
+            ws.Cell(currentRow + 1, 6).Style.Font.Bold = true;
+            ws.Cell(currentRow + 1, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-            currentRow += 4; // Space for signature
+            currentRow += 5; // Ruang tanda tangan manual
 
-            ws.Cell(currentRow, 2).Value = model.CreatedBy.Name;
+            ws.Cell(currentRow, 2).Value = section.CreatedBy.Name;
             ws.Cell(currentRow, 2).Style.Font.Bold = true;
-            ws.Cell(currentRow, 2).Style.Font.Underline = XLFontUnderlineValues.Single;
             ws.Cell(currentRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-            ws.Cell(currentRow, 5).Value = model.AcknowledgedBy.Name;
-            ws.Cell(currentRow, 5).Style.Font.Bold = true;
-            ws.Cell(currentRow, 5).Style.Font.Underline = XLFontUnderlineValues.Single;
-            ws.Cell(currentRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 4).Value = model.AcknowledgedBy.Name;
+            ws.Cell(currentRow, 4).Style.Font.Bold = true;
+            ws.Cell(currentRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-            ws.Cell(currentRow, 7).Value = model.ApprovedBy.Name;
-            ws.Cell(currentRow, 7).Style.Font.Bold = true;
-            ws.Cell(currentRow, 7).Style.Font.Underline = XLFontUnderlineValues.Single;
-            ws.Cell(currentRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 6).Value = model.ApprovedBy.Name;
+            ws.Cell(currentRow, 6).Style.Font.Bold = true;
+            ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
             currentRow += 1;
-            ws.Cell(currentRow, 2).Value = model.CreatedBy.Title;
-            ws.Cell(currentRow, 2).Style.Font.FontSize = 8;
+            ws.Cell(currentRow, 2).Value = section.CreatedBy.Title;
+            ws.Cell(currentRow, 2).Style.Font.FontSize = 9;
             ws.Cell(currentRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-            ws.Cell(currentRow, 5).Value = model.AcknowledgedBy.Title;
-            ws.Cell(currentRow, 5).Style.Font.FontSize = 8;
-            ws.Cell(currentRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 4).Value = model.AcknowledgedBy.Title;
+            ws.Cell(currentRow, 4).Style.Font.FontSize = 9;
+            ws.Cell(currentRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-            ws.Cell(currentRow, 7).Value = model.ApprovedBy.Title.Replace("\n", " - ");
-            ws.Cell(currentRow, 7).Style.Font.FontSize = 8;
-            ws.Cell(currentRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(currentRow, 6).Value = model.ApprovedBy.Title;
+            ws.Cell(currentRow, 6).Style.Font.FontSize = 9;
+            ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
             ws.Columns().AdjustToContents();
+            ws.Column(1).Width = 6;
+            ws.Column(2).Width = 20;
+            ws.Column(3).Width = 14;
+            ws.Column(4).Width = 16;
+            ws.Column(5).Width = 16;
+            ws.Column(6).Width = 42;
         }
 
         using var ms = new MemoryStream();
@@ -193,10 +191,8 @@ public class ExportService : IExportService
         csv.WriteField("No");
         csv.WriteField("Tanggal");
         csv.WriteField("Hari");
-        csv.WriteField("JamMasuk");
-        csv.WriteField("JamPulang");
-        csv.WriteField("TotalJamKerja");
-        csv.WriteField("Status");
+        csv.WriteField("WaktuMasuk");
+        csv.WriteField("WaktuKeluar");
         csv.WriteField("Keterangan");
         csv.NextRecord();
 
@@ -212,8 +208,6 @@ public class ExportService : IExportService
                 csv.WriteField(r.DayName);
                 csv.WriteField(r.CheckInText);
                 csv.WriteField(r.CheckOutText);
-                csv.WriteField(r.WorkHours);
-                csv.WriteField(r.Status.ToString());
                 csv.WriteField(r.Description);
                 csv.NextRecord();
             }

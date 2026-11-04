@@ -12,7 +12,14 @@ public class AttendanceReportViewModel
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
 
-    public string PeriodText => $"{StartDate:dd MMMM yyyy} - {EndDate:dd MMMM yyyy}";
+    public string PeriodText
+    {
+        get
+        {
+            var culture = new CultureInfo("id-ID");
+            return $"{StartDate.ToString("d MMMM yyyy", culture)} - {EndDate.ToString("d MMMM yyyy", culture)}";
+        }
+    }
 
     // Filter target
     public int? EmployeeId { get; set; }
@@ -29,32 +36,36 @@ public class AttendanceReportViewModel
     public int TotalLibur { get; set; }
     public decimal TotalWorkHours { get; set; }
 
-    // Formal Signatures
+    // Formal Signatures Default
     public SignatureBlock CreatedBy { get; set; } = new()
     {
-        Header = "DIBUAT OLEH",
+        Header = "Dibuat oleh,",
+        Company = "PT Kirana Sakti Komputindo",
         Name = "Vino Rifhendi Setiawan",
-        Title = "Administrator / Leader Engineer On Site"
+        Title = "Leader / Engineer on Site Rembang"
     };
 
     public SignatureBlock AcknowledgedBy { get; set; } = new()
     {
-        Header = "MENGETAHUI",
+        Header = "Mengetahui,",
+        Company = "PT Kirana Sakti Komputindo",
         Name = "Dina Frinda Saragih",
         Title = "Project Manager MS WiFi"
     };
 
     public SignatureBlock ApprovedBy { get; set; } = new()
     {
-        Header = "MENYETUJUI",
+        Header = "Menyetujui,",
+        Company = "PT Semen Gresik (Persero) Tbk",
         Name = "Dwi Mulyantoro",
-        Title = "IT Site Infrastructure Officer\nPT Semen Gresik (Persero) Tbk."
+        Title = "IT Site Infrastructure Officer"
     };
 }
 
 public class SignatureBlock
 {
     public string Header { get; set; } = string.Empty;
+    public string Company { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
 }
@@ -69,18 +80,22 @@ public class EmployeeReportSection
     public int CutiCount { get; set; }
     public int LiburCount { get; set; }
     public decimal TotalHours { get; set; }
+
+    // Dedicated signature for this section's engineer
+    public SignatureBlock CreatedBy { get; set; } = new();
 }
 
 public class AttendanceReportRow
 {
     public int No { get; set; }
     public DateOnly Date { get; set; }
+    public string FormattedDate => Date.ToString("d MMMM yyyy", new CultureInfo("id-ID"));
     public string DayName { get; set; } = string.Empty;
     public string CheckInText { get; set; } = "-";
     public string CheckOutText { get; set; } = "-";
     public AttendanceStatus Status { get; set; }
     public decimal WorkHours { get; set; }
-    public string Description { get; set; } = "-";
+    public string Description { get; set; } = string.Empty;
 
     public static string GetIndonesianDay(DayOfWeek day) => day switch
     {
@@ -94,4 +109,3 @@ public class AttendanceReportRow
         _ => day.ToString()
     };
 }
-

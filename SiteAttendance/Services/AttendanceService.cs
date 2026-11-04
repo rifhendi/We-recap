@@ -350,6 +350,10 @@ public class AttendanceService : IAttendanceService
                 .OrderBy(a => a.AttendanceDate)
                 .ToList();
 
+            string titlePos = emp.Position.Contains("Rembang", StringComparison.OrdinalIgnoreCase)
+                ? emp.Position
+                : $"{emp.Position} Rembang";
+
             var section = new EmployeeReportSection
             {
                 Employee = emp,
@@ -358,23 +362,55 @@ public class AttendanceService : IAttendanceService
                 SakitCount = empAtts.Count(a => a.Status == AttendanceStatus.Sakit),
                 CutiCount = empAtts.Count(a => a.Status == AttendanceStatus.Cuti),
                 LiburCount = empAtts.Count(a => a.Status == AttendanceStatus.Libur),
-                TotalHours = empAtts.Sum(a => a.TotalWorkHours)
+                TotalHours = empAtts.Sum(a => a.TotalWorkHours),
+                CreatedBy = new SignatureBlock
+                {
+                    Header = "Dibuat oleh,",
+                    Company = "PT Kirana Sakti Komputindo",
+                    Name = emp.FullName,
+                    Title = titlePos
+                }
             };
 
             int no = 1;
-            foreach (var item in empAtts)
+            for (var curDate = startDate; curDate <= endDate; curDate = curDate.AddDays(1))
             {
-                section.Rows.Add(new AttendanceReportRow
+                var att = empAtts.FirstOrDefault(a => a.AttendanceDate == curDate);
+                var dayOfWeek = curDate.DayOfWeek;
+                var isWeekend = dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday;
+
+                if (att != null)
                 {
-                    No = no++,
-                    Date = item.AttendanceDate,
-                    DayName = AttendanceReportRow.GetIndonesianDay(item.AttendanceDate.DayOfWeek),
-                    CheckInText = item.CheckIn.HasValue ? item.CheckIn.Value.ToString("HH:mm") : "-",
-                    CheckOutText = item.CheckOut.HasValue ? item.CheckOut.Value.ToString("HH:mm") : "-",
-                    Status = item.Status,
-                    WorkHours = item.TotalWorkHours,
-                    Description = !string.IsNullOrWhiteSpace(item.Description) ? item.Description : "-"
-                });
+                    string desc = !string.IsNullOrWhiteSpace(att.Description)
+                        ? att.Description
+                        : (att.Status == AttendanceStatus.Hadir ? "" : (isWeekend ? "-" : att.Status.ToString()));
+
+                    section.Rows.Add(new AttendanceReportRow
+                    {
+                        No = no++,
+                        Date = curDate,
+                        DayName = AttendanceReportRow.GetIndonesianDay(dayOfWeek),
+                        CheckInText = att.CheckIn.HasValue ? att.CheckIn.Value.ToString("HH:mm") : "-",
+                        CheckOutText = att.CheckOut.HasValue ? att.CheckOut.Value.ToString("HH:mm") : "-",
+                        Status = att.Status,
+                        WorkHours = att.TotalWorkHours,
+                        Description = desc
+                    });
+                }
+                else
+                {
+                    section.Rows.Add(new AttendanceReportRow
+                    {
+                        No = no++,
+                        Date = curDate,
+                        DayName = AttendanceReportRow.GetIndonesianDay(dayOfWeek),
+                        CheckInText = "-",
+                        CheckOutText = "-",
+                        Status = isWeekend ? AttendanceStatus.Libur : AttendanceStatus.Hadir,
+                        WorkHours = 0,
+                        Description = isWeekend ? "-" : ""
+                    });
+                }
             }
 
             vm.Sections.Add(section);
