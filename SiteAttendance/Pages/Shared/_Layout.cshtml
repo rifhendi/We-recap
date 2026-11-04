@@ -11,7 +11,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"] - Site Attendance Management</title>
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
@@ -25,11 +25,14 @@
     {
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar" id="appSidebar">
-            <div class="sidebar-header">
+            <div class="sidebar-header d-flex justify-content-between align-items-center">
                 <div>
                     <div class="sidebar-brand-title">SITE ATTENDANCE</div>
                     <div class="sidebar-brand-sub">Manage Service SIG</div>
                 </div>
+                <button type="button" class="btn btn-sm text-white d-lg-none p-1" id="sidebarCloseBtn">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
@@ -39,9 +42,15 @@
                     <span>Dashboard</span>
                 </a>
 
-                <a class="sidebar-link @(currentPath.StartsWith("/Attendance") ? "active" : "")" asp-page="/Attendance/Index">
+                <a class="sidebar-link @(currentPath.StartsWith("/Attendance/Daily") ? "active" : "")" asp-page="/Attendance/Daily">
+                    <i data-lucide="check-square" style="width: 18px; height: 18px;"></i>
+                    <span>Input Harian Cepat</span>
+                    <span class="badge bg-primary ms-auto" style="font-size: 0.65rem;">Cepat</span>
+                </a>
+
+                <a class="sidebar-link @(currentPath == "/Attendance" || (currentPath.StartsWith("/Attendance") && !currentPath.StartsWith("/Attendance/Daily")) ? "active" : "")" asp-page="/Attendance/Index">
                     <i data-lucide="calendar-check" style="width: 18px; height: 18px;"></i>
-                    <span>Data Absensi</span>
+                    <span>Data Absensi (CRUD)</span>
                 </a>
 
                 <a class="sidebar-link @(currentPath.StartsWith("/Employees") ? "active" : "")" asp-page="/Employees/Index">
@@ -77,13 +86,16 @@
             </div>
         </aside>
 
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
         <!-- Main Content -->
         <div class="app-main">
             <!-- Topbar -->
             <header class="app-topbar">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-sm d-lg-none p-0 text-dark" id="sidebarToggle" type="button">
-                        <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    <button class="btn btn-sm d-lg-none p-1 text-dark border" id="sidebarToggle" type="button" aria-label="Toggle menu">
+                        <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
                     </button>
                     <div>
                         <div class="topbar-site-badge">
@@ -96,19 +108,24 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-none d-sm-block text-end" style="line-height: 1.2;">
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    <a asp-page="/Attendance/Daily" class="btn btn-primary btn-sm d-none d-sm-inline-flex align-items-center gap-1 shadow-sm py-1 px-2" style="font-size: 0.78rem;">
+                        <i data-lucide="plus-circle" style="width: 14px; height: 14px;"></i>
+                        <span>Input Absen</span>
+                    </a>
+
+                    <div class="d-none d-lg-block text-end" style="line-height: 1.2;">
                         <div style="font-size: 0.78rem; font-weight: 600; color: #1E293B;">@DateTime.UtcNow.AddHours(7).ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"))</div>
                         <div style="font-size: 0.7rem; color: #64748B;">Zona Waktu: Asia/Jakarta (WIB)</div>
                     </div>
 
-                    <div class="user-badge">
-                        <div class="user-avatar">
+                    <div class="user-badge py-1 px-2">
+                        <div class="user-avatar" style="width: 26px; height: 26px; font-size: 0.75rem;">
                             @(displayName.Length > 0 ? displayName.Substring(0, 1).ToUpper() : "V")
                         </div>
                         <div class="d-none d-md-block text-start">
-                            <div style="font-size: 0.8rem; font-weight: 600; color: #0F172A;">@displayName</div>
-                            <div style="font-size: 0.68rem; color: #64748B;">Site Leader</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; color: #0F172A;">@displayName</div>
+                            <div style="font-size: 0.65rem; color: #64748B;">Site Leader</div>
                         </div>
                     </div>
                 </div>
@@ -138,15 +155,41 @@
             </main>
 
             <!-- Corporate Footer -->
-            <footer class="px-4 py-2 bg-white border-top text-muted d-flex flex-wrap justify-content-between align-items-center" style="font-size: 0.75rem;">
+            <footer class="px-3 px-md-4 py-2 bg-white border-top text-muted d-flex flex-wrap justify-content-between align-items-center" style="font-size: 0.75rem;">
                 <div>
-                    &copy; @DateTime.UtcNow.Year Manage Service SIG – Site Rembang. Administrator: <strong>Vino Rifhendi Setiawan</strong>
+                    &copy; @DateTime.UtcNow.Year Manage Service SIG – Site Rembang. Leader: <strong>Vino Rifhendi Setiawan</strong>
                 </div>
-                <div>
+                <div class="d-none d-sm-block">
                     Single Source of Truth: <strong>PostgreSQL</strong> | .NET 10 LTS
                 </div>
             </footer>
         </div>
+
+        <!-- Mobile Bottom Navigation Bar (Fixed for Smartphones) -->
+        <nav class="app-bottom-nav d-md-none">
+            <a href="/" class="bottom-nav-item @(currentPath == "/" || currentPath == "/Index" ? "active" : "")">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Beranda</span>
+            </a>
+            <a href="/Attendance/Daily" class="bottom-nav-item bottom-nav-highlight @(currentPath.StartsWith("/Attendance/Daily") ? "active" : "")">
+                <div class="highlight-circle">
+                    <i data-lucide="plus"></i>
+                </div>
+                <span>Input Absen</span>
+            </a>
+            <a href="/Attendance/Index" class="bottom-nav-item @(currentPath == "/Attendance" || (currentPath.StartsWith("/Attendance") && !currentPath.StartsWith("/Attendance/Daily")) ? "active" : "")">
+                <i data-lucide="calendar-check"></i>
+                <span>Riwayat</span>
+            </a>
+            <a href="/Reports/Index" class="bottom-nav-item @(currentPath.StartsWith("/Reports") ? "active" : "")">
+                <i data-lucide="file-text"></i>
+                <span>Laporan</span>
+            </a>
+            <button type="button" class="bottom-nav-item btn-toggle-mobile border-0 bg-transparent" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+                <span>Lainnya</span>
+            </button>
+        </nav>
     }
     else
     {
@@ -162,14 +205,27 @@
         // Inisialisasi ikon Lucide
         lucide.createIcons();
 
-        // Mobile sidebar toggle
+        // Mobile sidebar drawer & backdrop logic
         const toggleBtn = document.getElementById('sidebarToggle');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
         const sidebar = document.getElementById('appSidebar');
-        if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
+        const backdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebar() {
+            if (sidebar) sidebar.classList.toggle('show');
+            if (backdrop) backdrop.classList.toggle('show');
         }
+
+        function closeSidebar() {
+            if (sidebar) sidebar.classList.remove('show');
+            if (backdrop) backdrop.classList.remove('show');
+        }
+
+        if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (backdrop) backdrop.addEventListener('click', closeSidebar);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
