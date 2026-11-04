@@ -31,4 +31,6 @@ secrets.json
 *.log
 *.tmp
 TestResults/
+tools/
+*.exe
 
