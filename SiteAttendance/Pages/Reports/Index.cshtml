@@ -83,89 +83,91 @@
 <!-- Formal Printable A4 Document Sheet -->
 @foreach (var sec in Model.Report.Sections)
 {
-    <div class="document-sheet shadow bg-white p-4 p-md-5 mx-auto border mb-5" style="max-width: 920px; color: #000; font-family: Arial, sans-serif;">
-        <!-- Header: Logos and Title -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Left: KIRANA Logo -->
-            <div style="width: 140px;">
-                <img src="/images/logo-kirana.png?v=2" alt="Logo Kirana" style="height: 44px; max-width: 100%; object-fit: contain;" />
+    <div class="document-sheet shadow bg-white p-4 p-md-5 mx-auto border mb-5" style="max-width: 920px; min-height: 1050px; display: flex; flex-direction: column; justify-content: space-between; color: #000; font-family: Arial, sans-serif;">
+        <div>
+            <!-- Header: Logos and Title -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Left: KIRANA Logo -->
+                <div style="width: 140px;">
+                    <img src="/images/logo-kirana.png?v=2" alt="Logo Kirana" style="height: 42px; max-width: 100%; object-fit: contain;" />
+                </div>
+
+                <!-- Center: Title -->
+                <div class="text-center flex-grow-1 px-2">
+                    <h6 class="fw-bold text-uppercase mb-1" style="font-size: 1.05rem; letter-spacing: 0.04em; color: #000;">
+                        ABSENSI ENGINEER ON SITE
+                    </h6>
+                    <h6 class="fw-bold text-uppercase mb-0" style="font-size: 1rem; color: #000;">
+                        MANAGE SERVICE SIG
+                    </h6>
+                </div>
+
+                <!-- Right: SIG Logo -->
+                <div style="width: 140px;" class="text-end">
+                    <img src="/images/logo-sig.png?v=2" alt="Logo SIG" style="height: 42px; max-width: 100%; object-fit: contain;" />
+                </div>
             </div>
 
-            <!-- Center: Title -->
-            <div class="text-center flex-grow-1 px-2">
-                <h6 class="fw-bold text-uppercase mb-1" style="font-size: 1.05rem; letter-spacing: 0.04em; color: #000;">
-                    ABSENSI ENGINEER ON SITE
-                </h6>
-                <h6 class="fw-bold text-uppercase mb-0" style="font-size: 1rem; color: #000;">
-                    MANAGE SERVICE SIG
-                </h6>
+            <!-- Metadata Section (Nama, Periode, Lokasi) -->
+            <div class="mb-3" style="font-size: 0.85rem; line-height: 1.6;">
+                <div class="d-flex">
+                    <div style="width: 70px;">Nama</div>
+                    <div style="width: 15px;">:</div>
+                    <div class="fw-bold">@sec.Employee.FullName</div>
+                </div>
+                <div class="d-flex">
+                    <div style="width: 70px;">Periode</div>
+                    <div style="width: 15px;">:</div>
+                    <div>@Model.Report.PeriodText</div>
+                </div>
+                <div class="d-flex">
+                    <div style="width: 70px;">Lokasi</div>
+                    <div style="width: 15px;">:</div>
+                    <div>@Model.Report.Location</div>
+                </div>
             </div>
 
-            <!-- Right: SIG Logo -->
-            <div style="width: 140px;" class="text-end">
-                <img src="/images/logo-sig.png?v=2" alt="Logo SIG" style="height: 44px; max-width: 100%; object-fit: contain;" />
-            </div>
-        </div>
-
-        <!-- Metadata Section (Nama, Periode, Lokasi) -->
-        <div class="mb-3" style="font-size: 0.85rem; line-height: 1.6;">
-            <div class="d-flex">
-                <div style="width: 75px;">Nama</div>
-                <div style="width: 15px;">:</div>
-                <div class="fw-bold">@sec.Employee.FullName</div>
-            </div>
-            <div class="d-flex">
-                <div style="width: 75px;">Periode</div>
-                <div style="width: 15px;">:</div>
-                <div>@Model.Report.PeriodText</div>
-            </div>
-            <div class="d-flex">
-                <div style="width: 75px;">Lokasi</div>
-                <div style="width: 15px;">:</div>
-                <div>@Model.Report.Location</div>
-            </div>
-        </div>
-
-        <!-- Attendance Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm align-middle mb-4" style="border: 1px solid #000; font-size: 0.78rem;">
-                <thead class="text-center" style="border-bottom: 1.5px solid #000;">
-                    <tr style="background-color: #F8FAFC;">
-                        <th style="width: 38px; border: 1px solid #000;">No</th>
-                        <th style="width: 145px; border: 1px solid #000;">Tanggal</th>
-                        <th style="width: 85px; border: 1px solid #000;">Hari</th>
-                        <th style="width: 95px; border: 1px solid #000;">Waktu Masuk</th>
-                        <th style="width: 95px; border: 1px solid #000;">Waktu Keluar</th>
-                        <th class="text-start" style="border: 1px solid #000;">Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (sec.Rows.Any())
-                    {
-                        foreach (var r in sec.Rows)
+            <!-- Attendance Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle mb-4" style="border: 1px solid #000; font-size: 0.78rem;">
+                    <thead class="text-center" style="border-bottom: 1.5px solid #000;">
+                        <tr style="background-color: #F8FAFC;">
+                            <th style="width: 38px; border: 1px solid #000;">No</th>
+                            <th style="width: 145px; border: 1px solid #000;">Tanggal</th>
+                            <th style="width: 85px; border: 1px solid #000;">Hari</th>
+                            <th style="width: 95px; border: 1px solid #000;">Waktu Masuk</th>
+                            <th style="width: 95px; border: 1px solid #000;">Waktu Keluar</th>
+                            <th class="text-start" style="border: 1px solid #000;">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (sec.Rows.Any())
+                        {
+                            foreach (var r in sec.Rows)
+                            {
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #000;">@r.No</td>
+                                    <td class="text-center" style="border: 1px solid #000;">@r.FormattedDate</td>
+                                    <td class="text-center" style="border: 1px solid #000;">@r.DayName</td>
+                                    <td class="text-center" style="border: 1px solid #000;">@r.CheckInText</td>
+                                    <td class="text-center" style="border: 1px solid #000;">@r.CheckOutText</td>
+                                    <td class="text-start" style="border: 1px solid #000;">@r.Description</td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td class="text-center" style="border: 1px solid #000;">@r.No</td>
-                                <td class="text-center" style="border: 1px solid #000;">@r.FormattedDate</td>
-                                <td class="text-center" style="border: 1px solid #000;">@r.DayName</td>
-                                <td class="text-center" style="border: 1px solid #000;">@r.CheckInText</td>
-                                <td class="text-center" style="border: 1px solid #000;">@r.CheckOutText</td>
-                                <td class="text-start" style="border: 1px solid #000;">@r.Description</td>
+                                <td colspan="6" class="text-center text-muted py-3" style="border: 1px solid #000;">Tidak ada catatan absensi untuk periode ini.</td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-3" style="border: 1px solid #000;">Tidak ada catatan absensi untuk periode ini.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Signatures (3 Columns) -->
-        <div class="row text-center mt-4 pt-2 g-2" style="font-size: 0.82rem;">
+        <!-- Signatures (3 Columns) - Anchored at the bottom -->
+        <div class="row text-center mt-auto pt-4 g-2" style="font-size: 0.82rem;">
             <!-- 1. DIBUAT OLEH -->
             <div class="col-4">
                 <div>@sec.CreatedBy.Header</div>
@@ -198,6 +200,10 @@
 
 <style>
     @@media print {
+        @@page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
         body {
             background-color: #FFFFFF !important;
             margin: 0 !important;
@@ -219,6 +225,10 @@
             padding: 0 !important;
             margin: 0 !important;
             max-width: 100% !important;
+            min-height: 275mm !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
             page-break-after: always;
         }
         .document-sheet:last-child {

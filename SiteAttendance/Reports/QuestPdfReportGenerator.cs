@@ -28,11 +28,12 @@ public class QuestPdfReportDocument : IDocument
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(26, Unit.Point);
+                page.Margin(28, Unit.Point);
                 page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(8f).FontColor("#000000"));
 
                 page.Header().Element(c => ComposeHeader(c, section));
                 page.Content().Element(c => ComposeContent(c, section));
+                page.Footer().Element(c => ComposeSignatures(c, section));
             });
         }
     }
@@ -41,11 +42,11 @@ public class QuestPdfReportDocument : IDocument
     {
         container.Column(col =>
         {
-            // Logos & Title Row
+            // Logos & Title Row - Aligned horizontally & vertically centered
             col.Item().Row(row =>
             {
                 // Left: Logo KIRANA
-                row.ConstantItem(120).AlignLeft().Element(c =>
+                row.ConstantItem(110).AlignLeft().AlignMiddle().Element(c =>
                 {
                     if (_kiranaLogoBytes != null)
                     {
@@ -58,14 +59,14 @@ public class QuestPdfReportDocument : IDocument
                 });
 
                 // Center: Title
-                row.RelativeItem().AlignCenter().Column(titleCol =>
+                row.RelativeItem().AlignCenter().AlignMiddle().Column(titleCol =>
                 {
                     titleCol.Item().AlignCenter().Text("ABSENSI ENGINEER ON SITE").FontSize(11.5f).Bold().FontColor("#000000");
                     titleCol.Item().AlignCenter().Text("MANAGE SERVICE SIG").FontSize(11f).Bold().FontColor("#000000");
                 });
 
                 // Right: Logo SIG
-                row.ConstantItem(120).AlignRight().Element(c =>
+                row.ConstantItem(110).AlignRight().AlignMiddle().Element(c =>
                 {
                     if (_sigLogoBytes != null)
                     {
@@ -81,29 +82,27 @@ public class QuestPdfReportDocument : IDocument
             // Spacing
             col.Item().PaddingTop(12);
 
-            // Metadata: Nama, Periode, Lokasi
-            col.Item().Row(metaRow =>
+            // Metadata: Nama, Periode, Lokasi (Formatted as cleanly aligned 3-column table)
+            col.Item().Table(metaTable =>
             {
-                metaRow.ConstantItem(55).Column(c =>
+                metaTable.ColumnsDefinition(cols =>
                 {
-                    c.Item().Text("Nama").FontSize(8.5f);
-                    c.Item().Text("Periode").FontSize(8.5f);
-                    c.Item().Text("Lokasi").FontSize(8.5f);
+                    cols.ConstantColumn(46);
+                    cols.ConstantColumn(12);
+                    cols.RelativeColumn();
                 });
 
-                metaRow.ConstantItem(12).Column(c =>
-                {
-                    c.Item().Text(":").FontSize(8.5f);
-                    c.Item().Text(":").FontSize(8.5f);
-                    c.Item().Text(":").FontSize(8.5f);
-                });
+                metaTable.Cell().PaddingVertical(1).Text("Nama").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(":").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(section.Employee.FullName).FontSize(8.5f).Bold();
 
-                metaRow.RelativeItem().Column(c =>
-                {
-                    c.Item().Text(section.Employee.FullName).FontSize(8.5f).Bold();
-                    c.Item().Text(_model.PeriodText).FontSize(8.5f);
-                    c.Item().Text(_model.Location).FontSize(8.5f);
-                });
+                metaTable.Cell().PaddingVertical(1).Text("Periode").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(":").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(_model.PeriodText).FontSize(8.5f);
+
+                metaTable.Cell().PaddingVertical(1).Text("Lokasi").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(":").FontSize(8.5f);
+                metaTable.Cell().PaddingVertical(1).Text(_model.Location).FontSize(8.5f);
             });
 
             col.Item().PaddingBottom(8);
@@ -112,68 +111,59 @@ public class QuestPdfReportDocument : IDocument
 
     private void ComposeContent(IContainer container, EmployeeReportSection section)
     {
-        container.Column(column =>
+        // Table inside Content - will neatly span available space
+        container.Table(table =>
         {
-            // Table
-            column.Item().Table(table =>
+            table.ColumnsDefinition(columns =>
             {
-                table.ColumnsDefinition(columns =>
-                {
-                    columns.ConstantColumn(24);   // No
-                    columns.ConstantColumn(110);  // Tanggal (e.g. 15 September 2026)
-                    columns.ConstantColumn(56);   // Hari (e.g. Selasa)
-                    columns.ConstantColumn(68);   // Waktu Masuk (e.g. 07:10)
-                    columns.ConstantColumn(68);   // Waktu Keluar (e.g. 17:15)
-                    columns.RelativeColumn();     // Keterangan
-                });
-
-                // Table Header
-                table.Header(header =>
-                {
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("No");
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("Tanggal");
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("Hari");
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("Waktu Masuk");
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("Waktu Keluar");
-                    header.Cell().Element(HeaderStyle).AlignCenter().Text("Keterangan");
-
-                    static IContainer HeaderStyle(IContainer container) =>
-                        container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.5f).PaddingHorizontal(2).DefaultTextStyle(x => x.FontSize(8f).Bold().FontColor("#000000"));
-                });
-
-                // Table Rows
-                foreach (var row in section.Rows)
-                {
-                    table.Cell().Element(CellStyle).AlignCenter().Text(row.No.ToString());
-                    table.Cell().Element(CellStyle).AlignCenter().Text(row.FormattedDate);
-                    table.Cell().Element(CellStyle).AlignCenter().Text(row.DayName);
-                    table.Cell().Element(CellStyle).AlignCenter().Text(row.CheckInText);
-                    table.Cell().Element(CellStyle).AlignCenter().Text(row.CheckOutText);
-                    table.Cell().Element(CellStyle).AlignLeft().Text(row.Description);
-                }
-
-                static IContainer CellStyle(IContainer container) =>
-                    container.Border(0.6f).BorderColor("#000000").PaddingVertical(1.6f).PaddingHorizontal(3).DefaultTextStyle(x => x.FontSize(7.5f).FontColor("#000000"));
+                columns.ConstantColumn(26);   // No
+                columns.ConstantColumn(105);  // Tanggal (e.g. 15 September 2026)
+                columns.ConstantColumn(56);   // Hari (e.g. Selasa)
+                columns.ConstantColumn(72);   // Waktu Masuk (e.g. 08:00)
+                columns.ConstantColumn(72);   // Waktu Keluar (e.g. 17:00)
+                columns.RelativeColumn();     // Keterangan
             });
 
-            // Spacing before signatures
-            column.Item().PaddingTop(18);
+            // Table Header
+            table.Header(header =>
+            {
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("No");
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Tanggal");
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Hari");
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Waktu Masuk");
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Waktu Keluar");
+                header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Keterangan");
 
-            // Three Signature Blocks (Dibuat oleh, Mengetahui, Menyetujui)
-            column.Item().Element(c => ComposeSignatures(c, section));
+                static IContainer HeaderStyle(IContainer container) =>
+                    container.Border(0.6f).BorderColor("#000000").PaddingVertical(3.5f).PaddingHorizontal(2).DefaultTextStyle(x => x.FontSize(8f).Bold().FontColor("#000000"));
+            });
+
+            // Table Rows
+            foreach (var row in section.Rows)
+            {
+                table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.No.ToString());
+                table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.FormattedDate);
+                table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.DayName);
+                table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.CheckInText);
+                table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.CheckOutText);
+                table.Cell().Element(CellStyle).AlignLeft().AlignMiddle().Text(row.Description);
+            }
+
+            static IContainer CellStyle(IContainer container) =>
+                container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.8f).PaddingHorizontal(4).DefaultTextStyle(x => x.FontSize(7.5f).FontColor("#000000"));
         });
     }
 
     private void ComposeSignatures(IContainer container, EmployeeReportSection section)
     {
-        container.Row(row =>
+        container.PaddingTop(12).Row(row =>
         {
             // 1. Dibuat oleh (Engineer On Site)
             row.RelativeItem().Column(c =>
             {
                 c.Item().AlignCenter().Text(section.CreatedBy.Header).FontSize(8f);
                 c.Item().AlignCenter().Text(section.CreatedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(38); // Space for manual signature
+                c.Item().Height(44); // Space for manual physical signature
                 c.Item().AlignCenter().Text(section.CreatedBy.Name).FontSize(8.5f).Bold();
                 c.Item().AlignCenter().Text(section.CreatedBy.Title).FontSize(7.5f);
             });
@@ -183,7 +173,7 @@ public class QuestPdfReportDocument : IDocument
             {
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Header).FontSize(8f);
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(38); // Space for manual signature
+                c.Item().Height(44); // Space for manual physical signature
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Name).FontSize(8.5f).Bold();
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Title).FontSize(7.5f);
             });
@@ -193,7 +183,7 @@ public class QuestPdfReportDocument : IDocument
             {
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Header).FontSize(8f);
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(38); // Space for manual signature
+                c.Item().Height(44); // Space for manual physical signature
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Name).FontSize(8.5f).Bold();
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Title).FontSize(7.5f);
             });
