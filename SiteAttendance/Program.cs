@@ -7,6 +7,13 @@ using SiteAttendance.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cloud Port Binding (Render/Railway/Heroku $PORT support)
+var envPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(envPort))
+{
+    builder.WebHost.UseUrls($"http://+:{envPort}");
+}
+
 // Load local overrides if present (e.g. Supabase credentials for local testing, ignored in git)
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
