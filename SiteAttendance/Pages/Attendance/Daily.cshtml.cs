@@ -221,3 +221,4 @@ public class DailyModel : PageModel
         public bool IsAlreadyRecorded { get; set; }
     }
 }
+
