@@ -7,6 +7,9 @@ using SiteAttendance.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load local overrides if present (e.g. Supabase credentials for local testing, ignored in git)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 // 1. Resolve PostgreSQL Connection String (Support DATABASE_URL standard)
 string? databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 string connectionString = !string.IsNullOrWhiteSpace(databaseUrl)
@@ -131,22 +134,64 @@ app.Run();
 // Helper untuk konversi DATABASE_URL ke Npgsql format (Heroku/Render/Railway/Supabase/Neon)
 static string ConvertDatabaseUrlToNpgsql(string databaseUrl)
 {
-    if (!databaseUrl.StartsWith("postgres://") && !databaseUrl.StartsWith("postgresql://"))
+    if (string.IsNullOrWhiteSpace(databaseUrl)) return databaseUrl;
+
+    if (!databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) && 
+        !databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
     {
         return databaseUrl;
     }
 
-    var uri = new Uri(databaseUrl);
-    var userInfo = uri.UserInfo.Split(':');
-    var builder = new NpgsqlConnectionStringBuilder
+    try
     {
-        Host = uri.Host,
-        Port = uri.Port > 0 ? uri.Port : 5432,
-        Database = uri.AbsolutePath.TrimStart('/'),
-        Username = userInfo.Length > 0 ? userInfo[0] : "",
-        Password = userInfo.Length > 1 ? userInfo[1] : "",
-        SslMode = SslMode.Prefer
-    };
+        // Handle postgresql://user:pass@host:port/dbname with regex to support passwords containing '@'
+        var match = System.Text.RegularExpressions.Regex.Match(
+            databaseUrl, 
+            @"^postgres(?:ql)?://(?<user>[^:]+):(?<pass>.+)@(?<host>[^:/]+)(?::(?<port>\d+))?/(?<db>[^?]+)");
 
-    return builder.ToString();
+        if (match.Success)
+        {
+            var user = Uri.UnescapeDataString(match.Groups["user"].Value);
+            var pass = Uri.UnescapeDataString(match.Groups["pass"].Value);
+            var host = match.Groups["host"].Value;
+            var port = match.Groups["port"].Success ? int.Parse(match.Groups["port"].Value) : 5432;
+            var db = match.Groups["db"].Value;
+
+            var builder = new NpgsqlConnectionStringBuilder
+            {
+                Host = host,
+                Port = port,
+                Database = db,
+                Username = user,
+                Password = pass,
+                SslMode = SslMode.Require
+            };
+            return builder.ToString();
+        }
+    }
+    catch
+    {
+        // Fallback to Uri standard parsing
+        try
+        {
+            var uri = new Uri(databaseUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            var builder = new NpgsqlConnectionStringBuilder
+            {
+                Host = uri.Host,
+                Port = uri.Port > 0 ? uri.Port : 5432,
+                Database = uri.AbsolutePath.TrimStart('/'),
+                Username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : "",
+                Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
+                SslMode = SslMode.Require
+            };
+            return builder.ToString();
+        }
+        catch
+        {
+            // return as-is
+        }
+    }
+
+    return databaseUrl;
 }

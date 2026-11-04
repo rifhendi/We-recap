@@ -24,6 +24,7 @@ bld/
 *.env.*
 !*.env.example
 appsettings.Production.json
+appsettings.Local.json
 secrets.json
 
 ## Logs & Temp
