@@ -7,3 +7,4 @@ $Shortcut.Description = "Aplikasi Rekap Absensi Engineer On Site - Manage Servic
 $Shortcut.IconLocation = "C:\Program Files\Google\Chrome\Application\chrome.exe,0"
 $Shortcut.Save()
 Write-Output "SUCCESS: Shortcut created at $DesktopPath\We-Recap Site Rembang.lnk"
+

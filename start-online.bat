@@ -26,3 +26,4 @@ cd /d "%~dp0tools"
 cloudflared.exe tunnel --protocol http2 --url http://localhost:5000
 
 pause
+

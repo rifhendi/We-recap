@@ -41,14 +41,14 @@ public class QuestPdfReportDocument : IDocument
     {
         container.Column(col =>
         {
-            // Logos & Title Table - Perfectly centered between left and right logos across full width
+            // Logos & Title Table: 3 symmetric columns across 100% of the A4 printable width
             col.Item().Table(headerTable =>
             {
                 headerTable.ColumnsDefinition(cols =>
                 {
-                    cols.ConstantColumn(120); // Left: Logo Kirana
-                    cols.RelativeColumn();    // Center: Title (Perfect horizontal center on page)
-                    cols.ConstantColumn(120); // Right: Logo SIG
+                    cols.ConstantColumn(120); // Col 1: Left Logo Kirana (120pt)
+                    cols.RelativeColumn();    // Col 2: Center Title (Symmetric center between left and right)
+                    cols.ConstantColumn(120); // Col 3: Right Logo SIG (120pt)
                 });
 
                 // Col 1: Left Logo Kirana
@@ -64,11 +64,12 @@ public class QuestPdfReportDocument : IDocument
                     }
                 });
 
-                // Col 2: Center Title
-                headerTable.Cell().AlignCenter().AlignMiddle().Column(titleCol =>
+                // Col 2: Center Title - MUST use text.AlignCenter() to center each line of text inside the block!
+                headerTable.Cell().AlignCenter().AlignMiddle().Text(text =>
                 {
-                    titleCol.Item().AlignCenter().Text("ABSENSI ENGINEER ON SITE").FontSize(12f).Bold().FontColor("#000000");
-                    titleCol.Item().AlignCenter().Text("MANAGE SERVICE SIG").FontSize(11.5f).Bold().FontColor("#000000");
+                    text.AlignCenter();
+                    text.Line("ABSENSI ENGINEER ON SITE").FontSize(12f).Bold().FontColor("#000000");
+                    text.Line("MANAGE SERVICE SIG").FontSize(11.5f).Bold().FontColor("#000000");
                 });
 
                 // Col 3: Right Logo SIG
