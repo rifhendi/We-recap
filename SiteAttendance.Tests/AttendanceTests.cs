@@ -207,7 +207,7 @@ public class AttendanceTests
             Description = "Operasional Harian"
         }, "test-user");
 
-        var reportData = await attService.GetReportDataAsync(new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 4));
+        var reportData = await attService.GetReportDataAsync(new DateOnly(2026, 10, 14), new DateOnly(2026, 11, 15));
 
         // 1. PDF Test
         var pdfBytes = exportService.ExportToPdf(reportData);

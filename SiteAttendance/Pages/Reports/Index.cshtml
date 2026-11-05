@@ -84,27 +84,27 @@
 @foreach (var sec in Model.Report.Sections)
 {
     <div class="document-sheet shadow bg-white p-4 p-md-5 mx-auto border mb-5" style="max-width: 920px; color: #000; font-family: Arial, sans-serif;">
-        <!-- Header: Logos and Title -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Header: Top Logos Row -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
             <!-- Left: KIRANA Logo -->
             <div style="width: 140px;">
-                <img src="/images/logo-kirana.png?v=2" alt="Logo Kirana" style="height: 42px; max-width: 100%; object-fit: contain;" />
-            </div>
-
-            <!-- Center: Title (Perfect Center) -->
-            <div class="text-center flex-grow-1 px-2">
-                <h6 class="fw-bold text-uppercase mb-1" style="font-size: 1.05rem; letter-spacing: 0.04em; color: #000;">
-                    ABSENSI ENGINEER ON SITE
-                </h6>
-                <h6 class="fw-bold text-uppercase mb-0" style="font-size: 1rem; color: #000;">
-                    MANAGE SERVICE SIG
-                </h6>
+                <img src="/images/logo-kirana.png?v=2" alt="Logo Kirana" style="height: 38px; max-width: 100%; object-fit: contain;" />
             </div>
 
             <!-- Right: SIG Logo -->
             <div style="width: 140px;" class="text-end">
-                <img src="/images/logo-sig.png?v=2" alt="Logo SIG" style="height: 42px; max-width: 100%; object-fit: contain;" />
+                <img src="/images/logo-sig.png?v=2" alt="Logo SIG" style="height: 38px; max-width: 100%; object-fit: contain;" />
             </div>
+        </div>
+
+        <!-- Center Title Directly Underneath Logos -->
+        <div class="text-center mb-3">
+            <h6 class="fw-bold text-uppercase mb-1" style="font-size: 1.1rem; letter-spacing: 0.05em; color: #000;">
+                ABSENSI ENGINEER ON SITE
+            </h6>
+            <h6 class="fw-bold text-uppercase mb-0" style="font-size: 1.05rem; color: #000;">
+                MANAGE SERVICE SIG
+            </h6>
         </div>
 
         <!-- Metadata Section (Nama, Periode, Lokasi) -->
