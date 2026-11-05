@@ -46,7 +46,7 @@ public class QuestPdfReportDocument : IDocument
             col.Item().Row(row =>
             {
                 // Left: Logo KIRANA
-                row.ConstantItem(110).AlignLeft().AlignMiddle().Element(c =>
+                row.ConstantItem(120).AlignLeft().AlignMiddle().Element(c =>
                 {
                     if (_kiranaLogoBytes != null)
                     {
@@ -58,15 +58,16 @@ public class QuestPdfReportDocument : IDocument
                     }
                 });
 
-                // Center: Title
-                row.RelativeItem().AlignCenter().AlignMiddle().Column(titleCol =>
+                // Center: Title (Perfect horizontal center using text alignment)
+                row.RelativeItem().AlignCenter().AlignMiddle().Text(t =>
                 {
-                    titleCol.Item().AlignCenter().Text("ABSENSI ENGINEER ON SITE").FontSize(11.5f).Bold().FontColor("#000000");
-                    titleCol.Item().AlignCenter().Text("MANAGE SERVICE SIG").FontSize(11f).Bold().FontColor("#000000");
+                    t.AlignCenter();
+                    t.Line("ABSENSI ENGINEER ON SITE").FontSize(12f).Bold().FontColor("#000000");
+                    t.Line("MANAGE SERVICE SIG").FontSize(11.5f).Bold().FontColor("#000000");
                 });
 
                 // Right: Logo SIG
-                row.ConstantItem(110).AlignRight().AlignMiddle().Element(c =>
+                row.ConstantItem(120).AlignRight().AlignMiddle().Element(c =>
                 {
                     if (_sigLogoBytes != null)
                     {
@@ -161,31 +162,31 @@ public class QuestPdfReportDocument : IDocument
             // 1. Dibuat oleh (Engineer On Site)
             row.RelativeItem().Column(c =>
             {
-                c.Item().AlignCenter().Text(section.CreatedBy.Header).FontSize(8f);
-                c.Item().AlignCenter().Text(section.CreatedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(44); // Space for manual physical signature
-                c.Item().AlignCenter().Text(section.CreatedBy.Name).FontSize(8.5f).Bold();
-                c.Item().AlignCenter().Text(section.CreatedBy.Title).FontSize(7.5f);
+                c.Item().AlignCenter().Text(section.CreatedBy.Header).FontSize(8.5f);
+                c.Item().AlignCenter().Text(section.CreatedBy.Company).FontSize(9f).Bold();
+                c.Item().Height(48); // Space for manual physical signature
+                c.Item().AlignCenter().Text(section.CreatedBy.Name).FontSize(9f).Bold();
+                c.Item().AlignCenter().Text(section.CreatedBy.Title).FontSize(8f);
             });
 
             // 2. Mengetahui (Project Manager MS WiFi)
             row.RelativeItem().Column(c =>
             {
-                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Header).FontSize(8f);
-                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(44); // Space for manual physical signature
-                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Name).FontSize(8.5f).Bold();
-                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Title).FontSize(7.5f);
+                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Header).FontSize(8.5f);
+                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Company).FontSize(9f).Bold();
+                c.Item().Height(48); // Space for manual physical signature
+                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Name).FontSize(9f).Bold();
+                c.Item().AlignCenter().Text(_model.AcknowledgedBy.Title).FontSize(8f);
             });
 
             // 3. Menyetujui (IT Site Infrastructure Officer)
             row.RelativeItem().Column(c =>
             {
-                c.Item().AlignCenter().Text(_model.ApprovedBy.Header).FontSize(8f);
-                c.Item().AlignCenter().Text(_model.ApprovedBy.Company).FontSize(8.5f).Bold();
-                c.Item().Height(44); // Space for manual physical signature
-                c.Item().AlignCenter().Text(_model.ApprovedBy.Name).FontSize(8.5f).Bold();
-                c.Item().AlignCenter().Text(_model.ApprovedBy.Title).FontSize(7.5f);
+                c.Item().AlignCenter().Text(_model.ApprovedBy.Header).FontSize(8.5f);
+                c.Item().AlignCenter().Text(_model.ApprovedBy.Company).FontSize(9f).Bold();
+                c.Item().Height(48); // Space for manual physical signature
+                c.Item().AlignCenter().Text(_model.ApprovedBy.Name).FontSize(9f).Bold();
+                c.Item().AlignCenter().Text(_model.ApprovedBy.Title).FontSize(8f);
             });
         });
     }

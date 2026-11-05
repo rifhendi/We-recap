@@ -30,6 +30,7 @@ secrets.json
 ## Logs & Temp
 *.log
 *.tmp
+*.pdf
 TestResults/
 tools/
 *.exe
