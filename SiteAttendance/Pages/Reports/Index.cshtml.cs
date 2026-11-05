@@ -39,11 +39,27 @@ public class IndexModel : PageModel
 
     public SelectList EmployeeOptions { get; set; } = null!;
 
+    private static (DateOnly Start, DateOnly End) GetDefaultPeriod(DateOnly today)
+    {
+        // Siklus Cut-Off Absensi Site: 14 bulan sebelumnya s/d 15 bulan berjalan
+        var start = today.Day <= 15
+            ? new DateOnly(today.Year, today.Month, 14).AddMonths(-1)
+            : new DateOnly(today.Year, today.Month, 14);
+
+        var end = today.Day <= 15
+            ? new DateOnly(today.Year, today.Month, 15)
+            : new DateOnly(today.Year, today.Month, 15).AddMonths(1);
+
+        return (start, end);
+    }
+
     public async Task OnGetAsync()
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
-        var start = StartDate ?? new DateOnly(today.Year, today.Month, 1);
-        var end = EndDate ?? today;
+        var (defStart, defEnd) = GetDefaultPeriod(today);
+
+        var start = StartDate ?? defStart;
+        var end = EndDate ?? defEnd;
 
         StartDate = start;
         EndDate = end;
@@ -57,8 +73,10 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnGetDownloadPdfAsync(DateOnly? startDate, DateOnly? endDate, int? employeeId)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
-        var start = startDate ?? new DateOnly(today.Year, today.Month, 1);
-        var end = endDate ?? today;
+        var (defStart, defEnd) = GetDefaultPeriod(today);
+
+        var start = startDate ?? defStart;
+        var end = endDate ?? defEnd;
 
         var reportData = await _attendanceService.GetReportDataAsync(start, end, employeeId);
         var pdfBytes = _exportService.ExportToPdf(reportData);
@@ -73,8 +91,10 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnGetDownloadExcelAsync(DateOnly? startDate, DateOnly? endDate, int? employeeId)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
-        var start = startDate ?? new DateOnly(today.Year, today.Month, 1);
-        var end = endDate ?? today;
+        var (defStart, defEnd) = GetDefaultPeriod(today);
+
+        var start = startDate ?? defStart;
+        var end = endDate ?? defEnd;
 
         var reportData = await _attendanceService.GetReportDataAsync(start, end, employeeId);
         var excelBytes = _exportService.ExportToExcel(reportData);
@@ -89,8 +109,10 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnGetDownloadCsvAsync(DateOnly? startDate, DateOnly? endDate, int? employeeId)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
-        var start = startDate ?? new DateOnly(today.Year, today.Month, 1);
-        var end = endDate ?? today;
+        var (defStart, defEnd) = GetDefaultPeriod(today);
+
+        var start = startDate ?? defStart;
+        var end = endDate ?? defEnd;
 
         var reportData = await _attendanceService.GetReportDataAsync(start, end, employeeId);
         var csvBytes = _exportService.ExportToCsv(reportData);

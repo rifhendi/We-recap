@@ -28,7 +28,7 @@ public class QuestPdfReportDocument : IDocument
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(28, Unit.Point);
+                page.Margin(26, Unit.Point);
                 page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(8f).FontColor("#000000"));
 
                 page.Header().Element(c => ComposeHeader(c, section));
@@ -41,48 +41,50 @@ public class QuestPdfReportDocument : IDocument
     {
         container.Column(col =>
         {
-            // Logos & Title Table: 3 symmetric columns across 100% of the A4 printable width
-            col.Item().Table(headerTable =>
+            // Logos & Title using Layers:
+            // PrimaryLayer: 100% full printable width Row with Left and Right logos
+            // Layer: Dead-center Title spanning full printable width (Floating / In Front of Text)
+            col.Item().Layers(layers =>
             {
-                headerTable.ColumnsDefinition(cols =>
+                // PrimaryLayer defines the exact 100% width and height for the header
+                layers.PrimaryLayer().Height(40).Row(row =>
                 {
-                    cols.ConstantColumn(120); // Col 1: Left Logo Kirana (120pt)
-                    cols.RelativeColumn();    // Col 2: Center Title (Symmetric center between left and right)
-                    cols.ConstantColumn(120); // Col 3: Right Logo SIG (120pt)
+                    // Left Logo Kirana (max width 120, height 36)
+                    row.ConstantItem(120).AlignLeft().AlignMiddle().Element(c =>
+                    {
+                        if (_kiranaLogoBytes != null)
+                        {
+                            c.Height(36).Image(_kiranaLogoBytes).FitArea();
+                        }
+                        else
+                        {
+                            c.Text("KIRANA").FontSize(13).Bold().FontColor("#02559C");
+                        }
+                    });
+
+                    // Flexible empty space spanning between logos
+                    row.RelativeItem();
+
+                    // Right Logo SIG (max width 120, height 36)
+                    row.ConstantItem(120).AlignRight().AlignMiddle().Element(c =>
+                    {
+                        if (_sigLogoBytes != null)
+                        {
+                            c.Height(36).Image(_sigLogoBytes).FitArea();
+                        }
+                        else
+                        {
+                            c.Text("SIG").FontSize(15).Bold().FontColor("#000000");
+                        }
+                    });
                 });
 
-                // Col 1: Left Logo Kirana
-                headerTable.Cell().AlignLeft().AlignMiddle().Element(c =>
-                {
-                    if (_kiranaLogoBytes != null)
-                    {
-                        c.Height(36).Image(_kiranaLogoBytes).FitArea();
-                    }
-                    else
-                    {
-                        c.Text("KIRANA").FontSize(13).Bold().FontColor("#02559C");
-                    }
-                });
-
-                // Col 2: Center Title - MUST use text.AlignCenter() to center each line of text inside the block!
-                headerTable.Cell().AlignCenter().AlignMiddle().Text(text =>
+                // Layer (In front of text): Spans the full printable width of the page, dead-center!
+                layers.Layer().AlignCenter().AlignMiddle().Text(text =>
                 {
                     text.AlignCenter();
                     text.Line("ABSENSI ENGINEER ON SITE").FontSize(12f).Bold().FontColor("#000000");
                     text.Line("MANAGE SERVICE SIG").FontSize(11.5f).Bold().FontColor("#000000");
-                });
-
-                // Col 3: Right Logo SIG
-                headerTable.Cell().AlignRight().AlignMiddle().Element(c =>
-                {
-                    if (_sigLogoBytes != null)
-                    {
-                        c.Height(36).Image(_sigLogoBytes).FitArea();
-                    }
-                    else
-                    {
-                        c.Text("SIG").FontSize(15).Bold().FontColor("#000000");
-                    }
                 });
             });
 
@@ -144,7 +146,7 @@ public class QuestPdfReportDocument : IDocument
                     header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Keterangan");
 
                     static IContainer HeaderStyle(IContainer container) =>
-                        container.Border(0.6f).BorderColor("#000000").PaddingVertical(3.5f).PaddingHorizontal(2).DefaultTextStyle(x => x.FontSize(8f).Bold().FontColor("#000000"));
+                        container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.8f).PaddingHorizontal(2).DefaultTextStyle(x => x.FontSize(8f).Bold().FontColor("#000000"));
                 });
 
                 // Table Rows
@@ -159,11 +161,11 @@ public class QuestPdfReportDocument : IDocument
                 }
 
                 static IContainer CellStyle(IContainer container) =>
-                    container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.8f).PaddingHorizontal(4).DefaultTextStyle(x => x.FontSize(7.5f).FontColor("#000000"));
+                    container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.0f).PaddingHorizontal(4).DefaultTextStyle(x => x.FontSize(7.5f).FontColor("#000000"));
             });
 
             // Spacing before signatures directly under the table
-            col.Item().PaddingTop(20);
+            col.Item().PaddingTop(14);
 
             // Three Signature Blocks (Dibuat oleh, Mengetahui, Menyetujui) directly below table
             col.Item().Element(c => ComposeSignatures(c, section));
@@ -179,7 +181,7 @@ public class QuestPdfReportDocument : IDocument
             {
                 c.Item().AlignCenter().Text(section.CreatedBy.Header).FontSize(8.5f);
                 c.Item().AlignCenter().Text(section.CreatedBy.Company).FontSize(9f).Bold();
-                c.Item().Height(46); // Space for manual physical signature
+                c.Item().Height(38); // Space for manual physical signature
                 c.Item().AlignCenter().Text(section.CreatedBy.Name).FontSize(9f).Bold();
                 c.Item().AlignCenter().Text(section.CreatedBy.Title).FontSize(8f);
             });
@@ -189,7 +191,7 @@ public class QuestPdfReportDocument : IDocument
             {
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Header).FontSize(8.5f);
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Company).FontSize(9f).Bold();
-                c.Item().Height(46); // Space for manual physical signature
+                c.Item().Height(38); // Space for manual physical signature
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Name).FontSize(9f).Bold();
                 c.Item().AlignCenter().Text(_model.AcknowledgedBy.Title).FontSize(8f);
             });
@@ -199,7 +201,7 @@ public class QuestPdfReportDocument : IDocument
             {
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Header).FontSize(8.5f);
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Company).FontSize(9f).Bold();
-                c.Item().Height(46); // Space for manual physical signature
+                c.Item().Height(38); // Space for manual physical signature
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Name).FontSize(9f).Bold();
                 c.Item().AlignCenter().Text(_model.ApprovedBy.Title).FontSize(8f);
             });

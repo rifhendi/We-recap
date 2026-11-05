@@ -39,9 +39,13 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        // Default range: awal bulan berjalan s/d hari ini (atau akhir bulan berjalan)
+        // Default range: awal siklus cut-off absensi site (14 bulan sebelumnya jika tgl <= 15) s/d hari ini
         var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7)); // UTC+7 WIB
-        var start = StartDate ?? new DateOnly(today.Year, today.Month, 1);
+        var defaultStart = today.Day <= 15
+            ? new DateOnly(today.Year, today.Month, 14).AddMonths(-1)
+            : new DateOnly(today.Year, today.Month, 14);
+
+        var start = StartDate ?? defaultStart;
         var end = EndDate ?? today;
 
         Dashboard = await _attendanceService.GetDashboardDataAsync(start, end, EmployeeId, Status, Search);

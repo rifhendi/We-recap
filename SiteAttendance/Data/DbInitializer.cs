@@ -100,119 +100,137 @@ public static class DbInitializer
                 await context.Employees.AddRangeAsync(employees);
                 await context.SaveChangesAsync();
                 logger.LogInformation("2 Data Engineer On Site berhasil diinisialisasi.");
-
-                // 4. Inisialisasi Data Absensi Contoh (Periode berjalan 1 - 4 November 2026)
-                var vino = employees[0];
-                var setiawan = employees[1];
-
-                var sampleAttendances = new List<Attendance>
-                {
-                    // Hari 1: 01 Nov 2026 (Minggu - Libur)
-                    new Attendance
-                    {
-                        EmployeeId = vino.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 1),
-                        Status = AttendanceStatus.Libur,
-                        CheckIn = null,
-                        CheckOut = null,
-                        TotalWorkHours = 0,
-                        Description = "Hari Libur Reguler",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Attendance
-                    {
-                        EmployeeId = setiawan.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 1),
-                        Status = AttendanceStatus.Libur,
-                        CheckIn = null,
-                        CheckOut = null,
-                        TotalWorkHours = 0,
-                        Description = "Hari Libur Reguler",
-                        CreatedAt = DateTime.UtcNow
-                    },
-
-                    // Hari 2: 02 Nov 2026 (Senin - Hadir normal)
-                    new Attendance
-                    {
-                        EmployeeId = vino.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 2),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(8, 0),
-                        CheckOut = new TimeOnly(17, 0),
-                        TotalWorkHours = 9.0m,
-                        Description = "Monitoring jaringan Access Point CCR Rembang",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Attendance
-                    {
-                        EmployeeId = setiawan.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 2),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(8, 5),
-                        CheckOut = new TimeOnly(17, 10),
-                        TotalWorkHours = 9.08m,
-                        Description = "Preventive maintenance Switch Rack lantai 2",
-                        CreatedAt = DateTime.UtcNow
-                    },
-
-                    // Hari 3: 03 Nov 2026 (Selasa - Hadir normal)
-                    new Attendance
-                    {
-                        EmployeeId = vino.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 3),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(7, 55),
-                        CheckOut = new TimeOnly(17, 0),
-                        TotalWorkHours = 9.08m,
-                        Description = "Troubleshooting koneksi Wi-Fi area Workshop",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Attendance
-                    {
-                        EmployeeId = setiawan.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 3),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(8, 0),
-                        CheckOut = new TimeOnly(17, 0),
-                        TotalWorkHours = 9.0m,
-                        Description = "Pengecekan kabel fiber optic converter Site Rembang",
-                        CreatedAt = DateTime.UtcNow
-                    },
-
-                    // Hari 4: 04 Nov 2026 (Rabu - Hari ini)
-                    new Attendance
-                    {
-                        EmployeeId = vino.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 4),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(7, 50),
-                        CheckOut = new TimeOnly(17, 0),
-                        TotalWorkHours = 9.17m,
-                        Description = "Koordinasi dengan Project Manager MS WiFi dan site check",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Attendance
-                    {
-                        EmployeeId = setiawan.Id,
-                        AttendanceDate = new DateOnly(2026, 11, 4),
-                        Status = AttendanceStatus.Hadir,
-                        CheckIn = new TimeOnly(8, 0),
-                        CheckOut = new TimeOnly(17, 5),
-                        TotalWorkHours = 9.08m,
-                        Description = "Standby operasional & ticket handling Manage Service SIG",
-                        CreatedAt = DateTime.UtcNow
-                    }
-                };
-
-                await context.Attendances.AddRangeAsync(sampleAttendances);
-                await context.SaveChangesAsync();
-                logger.LogInformation("Sampel absensi awal berhasil diinput.");
             }
+
+            // 4. Sinkronisasi Data Absensi Periode 14 Oktober s/d 5 November 2026
+            await SeedOctoberToNovemberAttendanceAsync(context, logger);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Terjadi kesalahan saat inisialisasi database.");
             throw;
+        }
+    }
+
+    public static async Task SeedOctoberToNovemberAttendanceAsync(ApplicationDbContext context, ILogger logger)
+    {
+        try
+        {
+            var employees = await context.Employees.Where(e => e.IsActive).OrderBy(e => e.EmployeeCode).ToListAsync();
+            if (!employees.Any()) return;
+
+            var startDate = new DateOnly(2026, 10, 14);
+            var endDate = new DateOnly(2026, 11, 5); // Hari ini
+
+            var existingAttendances = await context.Attendances
+                .Where(a => a.AttendanceDate >= startDate && a.AttendanceDate <= endDate)
+                .ToListAsync();
+
+            // Menit masuk realistis bervariasi antara 07:19 - 07:30
+            int[] vinoMinutes = { 22, 19, 25, 20, 28, 21, 24, 19, 26, 23, 30, 20, 25, 22, 20, 25, 21 };
+            int[] setiawanMinutes = { 20, 24, 27, 19, 25, 22, 29, 21, 23, 26, 28, 22, 24, 20, 23, 26, 22 };
+
+            int weekdayIdx = 0;
+            var toAdd = new List<Attendance>();
+
+            for (var curDate = startDate; curDate <= endDate; curDate = curDate.AddDays(1))
+            {
+                var dayOfWeek = curDate.DayOfWeek;
+                var isWeekend = dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday;
+
+                int mIdx = weekdayIdx;
+                if (!isWeekend)
+                {
+                    weekdayIdx++;
+                }
+
+                foreach (var emp in employees)
+                {
+                    var existing = existingAttendances.FirstOrDefault(a => a.EmployeeId == emp.Id && a.AttendanceDate == curDate);
+
+                    if (isWeekend)
+                    {
+                        if (existing != null)
+                        {
+                            existing.Status = AttendanceStatus.Libur;
+                            existing.CheckIn = null;
+                            existing.CheckOut = null;
+                            existing.TotalWorkHours = 0;
+                            existing.Description = "Hari Libur Reguler";
+                        }
+                        else
+                        {
+                            toAdd.Add(new Attendance
+                            {
+                                EmployeeId = emp.Id,
+                                AttendanceDate = curDate,
+                                Status = AttendanceStatus.Libur,
+                                CheckIn = null,
+                                CheckOut = null,
+                                TotalWorkHours = 0,
+                                Description = "Hari Libur Reguler",
+                                CreatedAt = DateTime.UtcNow
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Hari kerja (Senin - Jumat)
+                        int minute = emp.EmployeeCode == "EOS-001"
+                            ? vinoMinutes[mIdx % vinoMinutes.Length]
+                            : setiawanMinutes[mIdx % setiawanMinutes.Length];
+
+                        var checkIn = new TimeOnly(7, minute);
+                        var checkOut = new TimeOnly(16, 30);
+                        decimal workHours = Math.Round((decimal)(checkOut - checkIn).TotalHours, 2);
+
+                        if (existing != null)
+                        {
+                            existing.Status = AttendanceStatus.Hadir;
+                            existing.CheckIn = checkIn;
+                            existing.CheckOut = checkOut;
+                            existing.TotalWorkHours = workHours;
+                            // Kosongkan keterangan sesuai instruksi agar dapat diisi/dicek manual oleh user
+                            if (string.IsNullOrWhiteSpace(existing.Description) ||
+                                existing.Description.Contains("Preventive") ||
+                                existing.Description.Contains("Monitoring") ||
+                                existing.Description.Contains("Troubleshooting") ||
+                                existing.Description.Contains("Koordinasi") ||
+                                existing.Description.Contains("Standby") ||
+                                existing.Description.Contains("Pengecekan"))
+                            {
+                                existing.Description = "";
+                            }
+                        }
+                        else
+                        {
+                            toAdd.Add(new Attendance
+                            {
+                                EmployeeId = emp.Id,
+                                AttendanceDate = curDate,
+                                Status = AttendanceStatus.Hadir,
+                                CheckIn = checkIn,
+                                CheckOut = checkOut,
+                                TotalWorkHours = workHours,
+                                Description = "",
+                                CreatedAt = DateTime.UtcNow
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (toAdd.Count > 0)
+            {
+                await context.Attendances.AddRangeAsync(toAdd);
+            }
+
+            await context.SaveChangesAsync();
+            logger.LogInformation("Sinkronisasi absensi periode 14 Oktober - 5 November 2026 berhasil diperbarui ({Count} data baru ditambahkan).", toAdd.Count);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Gagal sinkronisasi data absensi periode 14 Oktober - 5 November.");
         }
     }
 }
