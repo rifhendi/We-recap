@@ -20,7 +20,7 @@
                asp-route-employeeId="@Model.EmployeeId"
                class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1 shadow-sm">
                 <i data-lucide="file-text" style="width: 15px; height: 15px;"></i>
-                <span>Download PDF Resmi (A4)</span>
+                <span>Download PDF</span>
             </a>
 
             <a asp-page-handler="DownloadExcel"
@@ -29,7 +29,7 @@
                asp-route-employeeId="@Model.EmployeeId"
                class="btn btn-success btn-sm d-inline-flex align-items-center gap-1 shadow-sm">
                 <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
-                <span>Download Excel (.xlsx)</span>
+                <span>Download Excel</span>
             </a>
 
             <a asp-page-handler="DownloadCsv"
@@ -63,7 +63,7 @@
                 <div class="col-12 col-md-4">
                     <label class="form-label small text-muted mb-1 fw-semibold">Pilih Engineer (Per-Engineer atau Semua)</label>
                     <select name="employeeId" class="form-select form-select-sm" asp-items="Model.EmployeeOptions">
-                        <option value="">-- Semua Engineer (Gabungan) --</option>
+                        <option value="">-- Semua Engineer --</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-2 d-flex gap-2">
