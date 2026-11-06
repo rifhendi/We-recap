@@ -31,8 +31,11 @@ public class QuestPdfReportDocument : IDocument
                 page.Margin(36, Unit.Point); // Normal standard A4 document margins
                 page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(8f).FontColor("#000000"));
 
-                page.Header().Element(c => ComposeHeader(c, section));
-                page.Content().Element(c => ComposeContent(c, section));
+                page.Content().Column(col =>
+                {
+                    col.Item().Element(c => ComposeHeader(c, section));
+                    col.Item().Element(c => ComposeContent(c, section));
+                });
             });
         }
     }
@@ -41,11 +44,18 @@ public class QuestPdfReportDocument : IDocument
     {
         container.Column(col =>
         {
-            // Row 1: Top Logos across full width (Kirana at far left, SIG at far right)
-            col.Item().Row(row =>
+            // Row 1: Top Logos across full printable width (Kirana at far left, SIG at far right)
+            col.Item().Table(logoTable =>
             {
-                // Left Logo Kirana
-                row.ConstantItem(120).AlignLeft().AlignMiddle().Element(c =>
+                logoTable.ColumnsDefinition(cols =>
+                {
+                    cols.ConstantColumn(120); // Left Logo
+                    cols.RelativeColumn();    // Center Space
+                    cols.ConstantColumn(120); // Right Logo
+                });
+
+                // Left: Kirana Logo
+                logoTable.Cell().AlignLeft().AlignMiddle().Element(c =>
                 {
                     if (_kiranaLogoBytes != null)
                     {
@@ -57,10 +67,11 @@ public class QuestPdfReportDocument : IDocument
                     }
                 });
 
-                row.RelativeItem(); // Space between logos
+                // Middle: Empty
+                logoTable.Cell();
 
-                // Right Logo SIG
-                row.ConstantItem(120).AlignRight().AlignMiddle().Element(c =>
+                // Right: SIG Logo
+                logoTable.Cell().AlignRight().AlignMiddle().Element(c =>
                 {
                     if (_sigLogoBytes != null)
                     {
@@ -74,11 +85,11 @@ public class QuestPdfReportDocument : IDocument
             });
 
             // Row 2: Title centered directly UNDERNEATH the logos (spans 100% full printable width, dead-center)
-            col.Item().PaddingTop(4).AlignCenter().Text(text =>
+            col.Item().PaddingTop(6).Text(text =>
             {
                 text.AlignCenter();
-                text.Line("ABSENSI ENGINEER ON SITE").FontSize(11.5f).Bold().FontColor("#000000");
-                text.Line("MANAGE SERVICE SIG").FontSize(11f).Bold().FontColor("#000000");
+                text.Line("ABSENSI ENGINEER ON SITE").FontSize(12f).Bold().FontColor("#000000");
+                text.Line("MANAGE SERVICE SIG").FontSize(11.5f).Bold().FontColor("#000000");
             });
 
             // Row 3: Metadata (Nama, Periode, Lokasi)

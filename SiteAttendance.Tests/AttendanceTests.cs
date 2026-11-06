@@ -1,4 +1,5 @@
 using System.Text;
+using QuestPDF.Fluent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using SiteAttendance.Data;
@@ -211,6 +212,9 @@ public class AttendanceTests
 
         // 1. PDF Test
         var pdfBytes = exportService.ExportToPdf(reportData);
+        var doc = new SiteAttendance.Reports.QuestPdfReportDocument(reportData);
+        var images = doc.GenerateImages().ToList();
+        Assert.Single(images);
         Assert.NotNull(pdfBytes);
         Assert.True(pdfBytes.Length > 1000);
         // Validasi header %PDF
