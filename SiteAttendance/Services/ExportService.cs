@@ -67,7 +67,7 @@ public class ExportService : IExportService
 
             // Table Headers
             int startRow = 8;
-            string[] headers = { "No", "Tanggal", "Hari", "Waktu Masuk", "Waktu Keluar", "Keterangan" };
+            string[] headers = { "No.", "Tanggal", "Hari", "Waktu Masuk", "Waktu Keluar", "Keterangan" };
             for (int i = 0; i < headers.Length; i++)
             {
                 var cell = ws.Cell(startRow, i + 1);

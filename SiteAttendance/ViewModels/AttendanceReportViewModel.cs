@@ -17,7 +17,7 @@ public class AttendanceReportViewModel
         get
         {
             var culture = new CultureInfo("id-ID");
-            return $"{StartDate.ToString("d MMMM yyyy", culture)} - {EndDate.ToString("d MMMM yyyy", culture)}";
+            return $"{StartDate.ToString("d MMMM yyyy", culture)} s.d. {EndDate.ToString("d MMMM yyyy", culture)}";
         }
     }
 

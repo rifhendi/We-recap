@@ -139,12 +139,12 @@ public class QuestPdfReportDocument : IDocument
                 // Table Header
                 table.Header(header =>
                 {
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("No");
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Tanggal");
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Hari");
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Waktu Masuk");
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Waktu Keluar");
-                    header.Cell().Element(HeaderStyle).AlignCenter().AlignMiddle().Text("Keterangan");
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("No."); });
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("Tanggal"); });
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("Hari"); });
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("Waktu Masuk"); });
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("Waktu Keluar"); });
+                    header.Cell().Element(HeaderStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span("Keterangan"); });
 
                     static IContainer HeaderStyle(IContainer container) =>
                         container.Border(0.6f).BorderColor("#000000").PaddingVertical(2.2f).PaddingHorizontal(2).DefaultTextStyle(x => x.FontSize(7.5f).Bold().FontColor("#000000"));
@@ -153,12 +153,12 @@ public class QuestPdfReportDocument : IDocument
                 // Table Rows
                 foreach (var row in section.Rows)
                 {
-                    table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.No.ToString());
-                    table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.FormattedDate);
-                    table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.DayName);
-                    table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.CheckInText);
-                    table.Cell().Element(CellStyle).AlignCenter().AlignMiddle().Text(row.CheckOutText);
-                    table.Cell().Element(CellStyle).AlignLeft().AlignMiddle().Text(row.Description);
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.No.ToString()); });
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.FormattedDate); });
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.DayName); });
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.CheckInText); });
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.CheckOutText); });
+                    table.Cell().Element(CellStyle).AlignMiddle().Text(t => { t.AlignCenter(); t.Span(row.Description); });
                 }
 
                 static IContainer CellStyle(IContainer container) =>

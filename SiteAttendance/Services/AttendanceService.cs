@@ -381,17 +381,40 @@ public class AttendanceService : IAttendanceService
 
                 if (att != null)
                 {
-                    string desc = !string.IsNullOrWhiteSpace(att.Description)
-                        ? att.Description
-                        : (att.Status == AttendanceStatus.Hadir ? "" : (isWeekend ? "-" : att.Status.ToString()));
+                    string desc = att.Description?.Trim() ?? "";
+                    if (isWeekend && (string.IsNullOrEmpty(desc) || desc == "-" || desc == "- -"))
+                    {
+                        desc = "Hari Libur Reguler";
+                    }
+                    else if (att.Status == AttendanceStatus.Hadir && (desc == "-" || desc == "- -"))
+                    {
+                        desc = "";
+                    }
+                    else if (string.IsNullOrEmpty(desc) && att.Status != AttendanceStatus.Hadir)
+                    {
+                        desc = att.Status == AttendanceStatus.Libur ? "Hari Libur Reguler" : att.Status.ToString();
+                    }
+
+                    // Format EYD untuk teks keterangan umum
+                    if (!string.IsNullOrEmpty(desc))
+                    {
+                        desc = desc.Replace("Ke 9", "ke-9", StringComparison.OrdinalIgnoreCase)
+                                   .Replace("ke 9", "ke-9", StringComparison.OrdinalIgnoreCase)
+                                   .Replace("plant rembang", "Plant Rembang", StringComparison.OrdinalIgnoreCase);
+
+                        if (desc.Length > 1 && char.IsLower(desc[0]))
+                        {
+                            desc = char.ToUpper(desc[0]) + desc[1..];
+                        }
+                    }
 
                     section.Rows.Add(new AttendanceReportRow
                     {
                         No = no++,
                         Date = curDate,
                         DayName = AttendanceReportRow.GetIndonesianDay(dayOfWeek),
-                        CheckInText = att.CheckIn.HasValue ? att.CheckIn.Value.ToString("HH:mm") : "-",
-                        CheckOutText = att.CheckOut.HasValue ? att.CheckOut.Value.ToString("HH:mm") : "-",
+                        CheckInText = att.CheckIn.HasValue ? att.CheckIn.Value.ToString("HH.mm") : "-",
+                        CheckOutText = att.CheckOut.HasValue ? att.CheckOut.Value.ToString("HH.mm") : "-",
                         Status = att.Status,
                         WorkHours = att.TotalWorkHours,
                         Description = desc
@@ -408,7 +431,7 @@ public class AttendanceService : IAttendanceService
                         CheckOutText = "-",
                         Status = isWeekend ? AttendanceStatus.Libur : AttendanceStatus.Hadir,
                         WorkHours = 0,
-                        Description = isWeekend ? "-" : ""
+                        Description = isWeekend ? "Hari Libur Reguler" : ""
                     });
                 }
             }
